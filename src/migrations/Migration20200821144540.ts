@@ -7,3 +7,4 @@ export class Migration20200821144540 extends Migration {
   }
 
 }
+
