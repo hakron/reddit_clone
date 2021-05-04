@@ -53,7 +53,20 @@ export class UserResolver {
         }
         const hashedPassword = await argon2.hash(options.password)
         const user = em.create(User, { username: options.username, password: hashedPassword })
-        await em.persistAndFlush(user)
+        try {
+            await em.persistAndFlush(user)
+        } catch (e) {
+            if (e.code === '23505') {
+                return {
+                    errors: [{
+                        field: 'username',
+                        message: 'Username already exist'
+                    }]
+                }
+                //duplicate username error
+            }
+            console.log(`error:`, e.message)
+        }
         return {
             user
         }
