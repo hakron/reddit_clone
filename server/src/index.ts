@@ -12,6 +12,7 @@ import { HelloResolver } from "./resolvers/hello"
 import { PostResolver } from "./resolvers/post"
 import { UserResolver } from "./resolvers/user"
 import { MyContext } from './types'
+import cors from 'cors'
 
 
 const main = async () => {
@@ -24,6 +25,13 @@ const main = async () => {
     const redisClient = redis.createClient()
 
     app.use(
+        cors({
+            origin: 'http://localhost:3000',
+            credentials: true
+        })
+    )
+
+    app.use(
         session({
             name: 'squid',
             store: new RedisStore({
@@ -34,7 +42,7 @@ const main = async () => {
                 maxAge: 1000 * 60 * 60 * 24 * 365 * 10, //10 years
                 httpOnly: true,
                 sameSite: 'lax', //csrf
-                secure:__prod__  //only works in https
+                secure: __prod__  //only works in https
             },
             saveUninitialized: false,
             secret: 'sdjfqjwjdqilkjksdhfuhqwendviaisdfmjehbvhadfgasdf',
@@ -47,10 +55,10 @@ const main = async () => {
             resolvers: [HelloResolver, PostResolver, UserResolver],
             validate: false
         }),
-        context: ({req, res}): MyContext => ({ em: orm.em, req, res })
+        context: ({ req, res }): MyContext => ({ em: orm.em, req, res })
     })
 
-    apolloServer.applyMiddleware({ app })
+    apolloServer.applyMiddleware({ app, cors: false })
 
     app.get('/', (_, res) => {
         res.send('hello')
