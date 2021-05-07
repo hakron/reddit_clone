@@ -3,6 +3,7 @@ import { Resolver, Ctx, Arg, Mutation, InputType, Field, ObjectType, Query } fro
 import { EntityManager } from '@mikro-orm/postgresql'
 import { User } from '../entities/User'
 import { MyContext } from '../types'
+import { COOKIE_NAME } from '../constants'
 
 @InputType()
 class UsernamePasswordInput {
@@ -66,7 +67,7 @@ export class UserResolver {
         const hashedPassword = await argon2.hash(options.password)
         let user
         try {
-          const result = await (em as EntityManager).createQueryBuilder(User).getKnexQuery().insert(
+            const result = await (em as EntityManager).createQueryBuilder(User).getKnexQuery().insert(
                 {
                     username: options.username,
                     password: hashedPassword,
@@ -124,5 +125,18 @@ export class UserResolver {
         return {
             user
         }
+    }
+
+    @Mutation(() => Boolean)
+    logout(@Ctx() { req, res }: MyContext) {
+        return new Promise((resolve) => req.session.destroy((e) => {
+            res.clearCookie(COOKIE_NAME)
+            if (e) {
+                console.log(`e`, e)
+                resolve(false)
+                return
+            }
+            resolve(true)
+        }))
     }
 }
