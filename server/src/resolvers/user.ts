@@ -1,5 +1,6 @@
 import argon2 from 'argon2'
 import { Resolver, Ctx, Arg, Mutation, InputType, Field, ObjectType, Query } from 'type-graphql'
+import { EntityManager } from '@mikro-orm/postgresql'
 import { User } from '../entities/User'
 import { MyContext } from '../types'
 
@@ -29,16 +30,17 @@ class UserResponse {
 
 @Resolver()
 export class UserResolver {
-    @Query(() => User, {nullable:true})
+    @Query(() => User, { nullable: true })
     me(
-        @Ctx() {req, em}: MyContext
+        @Ctx() { req, em }: MyContext
     ) {
         if (!req.session.userId) {
             return null
         }
-        const user = em.findOne(User, {id: req.session.userId})
+        const user = em.findOne(User, { id: req.session.userId })
         return user
     }
+
     @Mutation(() => UserResponse)
     async register(
         @Arg('options') options: UsernamePasswordInput,
@@ -62,9 +64,17 @@ export class UserResolver {
             }
         }
         const hashedPassword = await argon2.hash(options.password)
-        const user = em.create(User, { username: options.username, password: hashedPassword })
+        let user
         try {
-            await em.persistAndFlush(user)
+          const result = await (em as EntityManager).createQueryBuilder(User).getKnexQuery().insert(
+                {
+                    username: options.username,
+                    password: hashedPassword,
+                    created_at: new Date(),
+                    updated_at: new Date()
+                }
+            ).returning('*')
+            user = result[0]
         } catch (e) {
             if (e.code === '23505') {
                 return {
@@ -80,7 +90,7 @@ export class UserResolver {
         //store user id session
         //this will set a cookie
         req.session!.userId = user.id
-        
+
         return {
             user
         }
