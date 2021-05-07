@@ -89,10 +89,14 @@ export class UserResolver {
 
     @Mutation(() => UserResponse)
     async login(
-        @Arg('options') options: UsernamePasswordInput,
+        @Arg('usernameOrEmail') usernameOrEmail: string,
+        @Arg('password') password: string,
         @Ctx() { em, req }: MyContext
     ): Promise<UserResponse> {
-        const user = await em.findOne(User, { username: options.username })
+        const user = await em.findOne(User, usernameOrEmail.includes("@")
+        ? { email: usernameOrEmail } 
+        : { username: usernameOrEmail } 
+    )
         if (!user) {
             return {
                 errors: [{
@@ -101,7 +105,7 @@ export class UserResolver {
                 }]
             }
         }
-        const valid = await argon2.verify(user.password, options.password)
+        const valid = await argon2.verify(user.password, password)
         if (!valid) {
             return {
                 errors: [{
