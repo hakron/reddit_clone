@@ -61,7 +61,7 @@ export class UserResolver {
             }
         }
 
-        const user = em.findOne(User, {id: parseInt(userId)})
+        const user = await em.findOne(User, {id: parseInt(userId)})
         if (!user) {
             return {
                 errors: [{
@@ -72,7 +72,7 @@ export class UserResolver {
         }
         user.password = await argon2.hash(newPassword)
         await em.persistAndFlush(user)
-        req.session.userId = user.
+        req.session.userId = user.id
         return {user}
     }
 
@@ -81,9 +81,7 @@ export class UserResolver {
         @Arg('email') email: string,
         @Ctx() { em, redis }: MyContext
     ) {
-        console.log(`email`, email)
         const user = await em.findOne(User, { email })
-        console.log(`user`, user)
         if (!user) {
             //email not in db
             return true
@@ -101,6 +99,7 @@ export class UserResolver {
             email,
             `<a href="http://localhost:3000/change-password/${token}">reset password</a>`
         );
+        return true
     }
 
     @Mutation(() => UserResponse)
