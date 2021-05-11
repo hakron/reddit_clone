@@ -68,13 +68,13 @@ const ChangePassword: NextPage<{ token: string }> = ({ token }) => {
         )}
       </Formik>
     </Wrapper>
-  );
-};
+  )
+}
 
 ChangePassword.getInitialProps = ({ query }) => {
   return {
     token: query.token as string,
-  };
-};
+  }
+}
 
 export default withUrqlClient(createUrqlClient, {ssr: false})(ChangePassword)
