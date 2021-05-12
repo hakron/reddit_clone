@@ -9,9 +9,7 @@ import { useRouter } from "next/router";
 import { withUrqlClient } from "next-urql";
 import { createUrqlClient } from "../utils/createUrqlClient";
 
-interface loginProps {}
-
-const Login: React.FC<loginProps> = ({}) => {
+const Login: React.FC<{}> = ({}) => {
   const router = useRouter();
   const [, login] = useLoginMutation();
   return (
@@ -25,6 +23,9 @@ const Login: React.FC<loginProps> = ({}) => {
             setErrors(toErrorMap(response.data.login.errors));
           } else if (response.data?.login.user) {
             //worked
+            if (typeof router.query.next === "string") {
+              router.push(router.query.next);
+            }
             router.push("/");
           }
         }}
@@ -64,4 +65,4 @@ const Login: React.FC<loginProps> = ({}) => {
   );
 };
 
-export default withUrqlClient(createUrqlClient)(Login)
+export default withUrqlClient(createUrqlClient)(Login);
