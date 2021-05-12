@@ -4,6 +4,7 @@ import cors from 'cors'
 import express from 'express'
 import session from 'express-session'
 import Redis from 'ioredis'
+import path from 'path'
 import "reflect-metadata"
 import { buildSchema } from 'type-graphql'
 import { createConnection } from 'typeorm'
@@ -24,9 +25,11 @@ const main = async () => {
         password: 'postgres',
         logging: true,
         synchronize: true,
+        migrations: [path.join(__dirname, './migrations/*')],
         entities: [Post, User]
     })
     // await Post.delete({})
+    await conn.runMigrations()
     const app = express()
 
     const RedisStore = connectRedis(session)
@@ -63,7 +66,7 @@ const main = async () => {
             resolvers: [HelloResolver, PostResolver, UserResolver],
             validate: false
         }),
-        context: ({ req, res }): MyContext => ({req, res, redis })
+        context: ({ req, res }): MyContext => ({ req, res, redis })
     })
 
     apolloServer.applyMiddleware({ app, cors: false })
