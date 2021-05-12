@@ -1,5 +1,5 @@
 import { MyContext } from '../types'
-import { Resolver, Query, Arg, Mutation, InputType, Field, Ctx, UseMiddleware, Int, FieldResolver, Root } from 'type-graphql'
+import { Resolver, Query, Arg, Mutation, InputType, Field, Ctx, UseMiddleware, Int, FieldResolver, Root, ObjectType } from 'type-graphql'
 import { Post } from '../entities/Post'
 import { isAuth } from '../middleware/isAuth'
 import { getConnection } from 'typeorm'
@@ -11,32 +11,46 @@ class PostInput {
     @Field()
     text: string
 }
+
+@ObjectType()
+class PaginatedPosts {
+    @Field(() => [Post])
+    posts: Post[]
+    @Field()
+    hasMore: boolean
+}
 @Resolver(Post)
 export class PostResolver {
     @FieldResolver(() => String)
     textSnippet(@Root() root: Post) {
         return root.text.slice(0, 50)
     }
-    @Query(() => [Post])
+    @Query(() => PaginatedPosts)
     async posts(
         // cursor based pagination
         @Arg('limit', () => Int) limit: number,
         @Arg('cursor', () => String, { nullable: true }) cursor: string | null
-    ): Promise<Post[]> {
+    ): Promise<PaginatedPosts> {
         //cap limit to 50
         const realLimit = Math.min(50, limit)
+        const realLimitPlusOne = Math.min(50, limit) + 1
+
         const qb = getConnection()
             .getRepository(Post)
             .createQueryBuilder("p")
             .orderBy('"createdAt"', 'DESC')
-            .take(realLimit)
+            .take(realLimitPlusOne)
 
         if (cursor) {
             qb.where('"createdAt" < :cursor', {
                 cursor: new Date(parseInt(cursor))
             })
         }
-        return qb.getMany();
+        const posts = await qb.getMany()
+        return {
+            posts: posts.slice(0, realLimit),
+            hasMore: posts.length === realLimitPlusOne
+        }
 
     }
 
