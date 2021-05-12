@@ -1,5 +1,5 @@
 import { MyContext } from '../types'
-import { Resolver, Query, Arg, Mutation, InputType, Field, Ctx, UseMiddleware } from 'type-graphql'
+import { Resolver, Query, Arg, Mutation, InputType, Field, Ctx, UseMiddleware, Int } from 'type-graphql'
 import { Post } from '../entities/Post'
 import { isAuth } from '../middleware/isAuth'
 import { getConnection } from 'typeorm'
@@ -16,7 +16,7 @@ export class PostResolver {
     @Query(() => [Post])
     async posts(
         // cursor based pagination
-        @Arg('limit') limit: number,
+        @Arg('limit', () => Int) limit: number,
         @Arg('cursor', () => String, { nullable: true }) cursor: string | null
     ): Promise<Post[]> {
         //cap limit to 50
