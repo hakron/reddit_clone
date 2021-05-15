@@ -1,5 +1,5 @@
 import argon2 from 'argon2'
-import { Arg, Ctx, Field, Mutation, ObjectType, Query, Resolver } from 'type-graphql'
+import { Arg, Ctx, Field, FieldResolver, Mutation, ObjectType, Query, Resolver, Root } from 'type-graphql'
 import { getConnection } from 'typeorm'
 import { v4 } from 'uuid'
 import { COOKIE_NAME, FORGET_PASSWORD_PREFIX } from '../constants'
@@ -24,8 +24,17 @@ class UserResponse {
     user?: User
 }
 
-@Resolver()
+@Resolver(User)
 export class UserResolver {
+    @FieldResolver(() => String)
+    email(@Root() user: User, @Ctx() { req }: MyContext) {
+        //show the email if the user is allowed
+        if (req.session.userId === user.id) {
+            return user.email
+        }
+        return ""
+    }
+
     @Query(() => User, { nullable: true })
     me(@Ctx() { req }: MyContext) {
         if (!req.session.userId) {
@@ -110,7 +119,7 @@ export class UserResolver {
         const hashedPassword = await argon2.hash(options.password)
         let user
         try {
-            const result = await  User.create({
+            const result = await User.create({
                 username: options.username,
                 password: hashedPassword,
                 email: options.email
