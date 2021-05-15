@@ -3,7 +3,6 @@ import { Resolver, Query, Arg, Mutation, InputType, Field, Ctx, UseMiddleware, I
 import { Post } from '../entities/Post'
 import { isAuth } from '../middleware/isAuth'
 import { getConnection } from 'typeorm'
-import { Updoot } from '../entities/Updoot'
 
 @InputType()
 class PostInput {
