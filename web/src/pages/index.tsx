@@ -1,19 +1,9 @@
-import { ChevronUpIcon, ChevronDownIcon } from "@chakra-ui/icons";
-import {
-  Box,
-  Button,
-  Flex,
-  Heading,
-  Link,
-  Spinner,
-  Stack,
-  Text,
-  IconButton,
-} from "@chakra-ui/react";
+import { Button, Flex, Heading, Link, Spinner } from "@chakra-ui/react";
 import { withUrqlClient } from "next-urql";
 import NextLink from "next/link";
 import React, { useState } from "react";
 import { Layout } from "../components/Layout";
+import { PostSection } from "../components/PostSection";
 import { usePostsQuery } from "../generated/graphql";
 import { createUrqlClient } from "../utils/createUrqlClient";
 const Index = () => {
@@ -43,42 +33,8 @@ const Index = () => {
           size="xl"
         />
       ) : (
-        <Stack spacing={8}>
-          {data!.posts.posts.map((p) => (
-            <Flex
-              key={p.id}
-              p={5}
-              shadow="md"
-              borderWidth="1px"
-              justifyContent="space-between"
-            >
-              <Box>
-                <Heading fontSize="xl">{p.title}</Heading>
-                <Text>posted by: {p.creator.username}</Text>
-                <Text mt={4}>{p.textSnippet}</Text>
-              </Box>
-              <Flex
-                direction="column"
-                justifyContent="center"
-                alignItems="center"
-              >
-                <IconButton
-                  onClick={() => console.log(`yo`)}
-                  colorScheme="green"
-                  aria-label="Updoot post"
-                  icon={<ChevronUpIcon />}
-                />
-                {p.points}
-                <IconButton
-                  onClick={() => console.log(`sup`)}
-                  colorScheme="red"
-                  aria-label="Downdoot post"
-                  icon={<ChevronDownIcon />}
-                />
-              </Flex>
-            </Flex>
-          ))}
-        </Stack>
+        //data! === data always exist
+        <PostSection posts={data!.posts.posts} />
       )}
       {data && data.posts.hasMore && (
         <Flex>
