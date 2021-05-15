@@ -1,3 +1,4 @@
+import { ChevronUpIcon, ChevronDownIcon } from "@chakra-ui/icons";
 import {
   Box,
   Button,
@@ -7,15 +8,14 @@ import {
   Spinner,
   Stack,
   Text,
+  IconButton,
 } from "@chakra-ui/react";
 import { withUrqlClient } from "next-urql";
 import NextLink from "next/link";
-import React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
 import { Layout } from "../components/Layout";
 import { usePostsQuery } from "../generated/graphql";
 import { createUrqlClient } from "../utils/createUrqlClient";
-
 const Index = () => {
   const [variables, setVariables] = useState({
     limit: 10,
@@ -45,11 +45,38 @@ const Index = () => {
       ) : (
         <Stack spacing={8}>
           {data!.posts.posts.map((p) => (
-            <Box key={p.id} p={5} shadow="md" borderWidth="1px">
-              <Heading fontSize="xl">{p.title}</Heading>
-              <Text>posted by: {p.creator.username}</Text>
-              <Text mt={4}>{p.textSnippet}</Text>
-            </Box>
+            <Flex
+              key={p.id}
+              p={5}
+              shadow="md"
+              borderWidth="1px"
+              justifyContent="space-between"
+            >
+              <Box>
+                <Heading fontSize="xl">{p.title}</Heading>
+                <Text>posted by: {p.creator.username}</Text>
+                <Text mt={4}>{p.textSnippet}</Text>
+              </Box>
+              <Flex
+                direction="column"
+                justifyContent="center"
+                alignItems="center"
+              >
+                <IconButton
+                  onClick={() => console.log(`yo`)}
+                  colorScheme="green"
+                  aria-label="Updoot post"
+                  icon={<ChevronUpIcon />}
+                />
+                {p.points}
+                <IconButton
+                  onClick={() => console.log(`sup`)}
+                  colorScheme="red"
+                  aria-label="Downdoot post"
+                  icon={<ChevronDownIcon />}
+                />
+              </Flex>
+            </Flex>
           ))}
         </Stack>
       )}
