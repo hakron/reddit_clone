@@ -1,6 +1,5 @@
 import argon2 from 'argon2'
 import { Arg, Ctx, Field, FieldResolver, Mutation, ObjectType, Query, Resolver, Root } from 'type-graphql'
-import { getConnection } from 'typeorm'
 import { v4 } from 'uuid'
 import { COOKIE_NAME, FORGET_PASSWORD_PREFIX } from '../constants'
 import { User } from '../entities/User'
