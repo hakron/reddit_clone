@@ -1,6 +1,5 @@
-import { Button, Flex, Heading, Link, Spinner } from "@chakra-ui/react";
+import { Button, Flex, Spinner } from "@chakra-ui/react";
 import { withUrqlClient } from "next-urql";
-import NextLink from "next/link";
 import React, { useState } from "react";
 import { Layout } from "../components/Layout";
 import { PostSection } from "../components/PostSection";
@@ -17,13 +16,6 @@ const Index = () => {
   }
   return (
     <Layout>
-      <Flex align="center">
-        <Heading>Lireddit</Heading>
-        <NextLink href="/create-post">
-          <Link ml={"auto"}>Create Post</Link>
-        </NextLink>
-      </Flex>
-      <br />
       {fetching && !data ? (
         <Spinner
           thickness="4px"
