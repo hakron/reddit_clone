@@ -5,6 +5,7 @@ fragment PostSnippet on Post {
   points
   createdAt
   updatedAt
+  voteStatus
   creator {
     id
     username

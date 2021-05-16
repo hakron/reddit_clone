@@ -6,11 +6,13 @@ import { useVoteMutation } from "../generated/graphql";
 interface UpdootSectionProps {
   points: number;
   postId: number;
+  voteStatus: number | null;
 }
 
 export const UpdootSection: React.FC<UpdootSectionProps> = ({
   points,
   postId,
+  voteStatus,
 }) => {
   const [loadingState, setLoadingState] =
     useState<"updoot-loading" | "downdoot-loading" | "not-loading">(
@@ -29,7 +31,7 @@ export const UpdootSection: React.FC<UpdootSectionProps> = ({
           setLoadingState("not-loading");
         }}
         isLoading={loadingState === "updoot-loading"}
-        colorScheme="green"
+        colorScheme={voteStatus === 1 ? "green" : undefined}
         aria-label="Updoot post"
         icon={<ChevronUpIcon />}
       />
@@ -45,7 +47,7 @@ export const UpdootSection: React.FC<UpdootSectionProps> = ({
           setLoadingState("not-loading");
         }}
         isLoading={loadingState === "downdoot-loading"}
-        colorScheme="red"
+        colorScheme={voteStatus === -1 ? "red" : undefined}
         aria-label="Downdoot post"
         icon={<ChevronDownIcon />}
       />
