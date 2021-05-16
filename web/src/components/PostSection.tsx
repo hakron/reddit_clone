@@ -23,7 +23,7 @@ export const PostSection: React.FC<PostSectionProps> = ({ posts }) => {
             <Text>posted by: {p.creator.username}</Text>
             <Text mt={4}>{p.textSnippet}</Text>
           </Box>
-          <UpdootSection points={p.points} />
+          <UpdootSection postId={p.id} points={p.points} />
         </Flex>
       ))}
     </Stack>
