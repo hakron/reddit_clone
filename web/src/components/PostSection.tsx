@@ -1,3 +1,4 @@
+import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import {
   Box,
   Flex,
@@ -12,15 +13,16 @@ import React from "react";
 import {
   PostSnippetFragment,
   useDeletePostMutation,
+  useMeQuery,
 } from "../generated/graphql";
 import { UpdootSection } from "./UpdootSection";
-import { DeleteIcon } from "@chakra-ui/icons";
 interface PostSectionProps {
   posts: PostSnippetFragment[];
 }
 
 export const PostSection: React.FC<PostSectionProps> = ({ posts }) => {
   const [, deletePost] = useDeletePostMutation();
+  const [{ data }] = useMeQuery();
   return (
     <Stack spacing={8}>
       {posts.map((p) =>
@@ -35,7 +37,7 @@ export const PostSection: React.FC<PostSectionProps> = ({ posts }) => {
             <UpdootSection
               postId={p.id}
               points={p.points}
-              voteStatus={p.voteStatus}
+              voteStatus={p.voteStatus as number | null}
             />
             <Box flex={1} ml={4}>
               <NextLink href="/post/[id]" as={`/post/${p.id}`}>
@@ -48,12 +50,25 @@ export const PostSection: React.FC<PostSectionProps> = ({ posts }) => {
                 <Text flex={1} mt={4}>
                   {p.textSnippet}
                 </Text>
-                <IconButton
-                  onClick={() => deletePost({ id: p.id })}
-                  colorScheme="red"
-                  aria-label="Delete post"
-                  icon={<DeleteIcon />}
-                />
+                {data?.me?.id === p.creator.id && (
+                  <Box ml="auto">
+                    <NextLink href="/post/edit/[id]" as={`/post/edit/${p.id}`}>
+                      <IconButton
+                        as={Link}
+                        mr={4}
+                        colorScheme="teal"
+                        aria-label="Edit post"
+                        icon={<EditIcon />}
+                      />
+                    </NextLink>
+                    <IconButton
+                      onClick={() => deletePost({ id: p.id })}
+                      colorScheme="red"
+                      aria-label="Delete post"
+                      icon={<DeleteIcon />}
+                    />
+                  </Box>
+                )}
               </Flex>
             </Box>
           </Flex>
